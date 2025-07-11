@@ -67,7 +67,7 @@ This project is built with a modern, powerful tech stack to deliver a seamless a
 ## 🏗️ System Architecture
 
 <p align="center">
-  <img src="images/LiveDocs_system_architecture.png"
+  <img src="images/LiveDocs_System_Architecture.svg"
        alt="LiveDocs Application Flow and Architecture"
        width="850" />
   <br/>
