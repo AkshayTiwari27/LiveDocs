@@ -66,7 +66,16 @@ This project is built with a modern, powerful tech stack to deliver a seamless a
 
 ## 🏗️ System Architecture
 
+<p align="center">
+  <img src="images/LiveDocs_system_architecture.png"
+       alt="LiveDocs Application Flow and Architecture"
+       width="850" />
+  <br/>
+  <em>A high-level overview of the LiveDocs architecture, showing the client-server interaction, component structure, and integration with external services.</em>
+</p>
+
 LiveDocs is built on a modern, serverless architecture optimized for performance, scalability, and developer experience. The system is logically structured to separate concerns, from the user interface to the real-time backend services.
+
 
 ```
 livedocs/
