@@ -32,6 +32,38 @@ LiveDocs is a high-performance, real-time collaborative document editor engineer
 
 -----
 
+
+## 🛠️ Technologies Used
+
+This project is built with a modern, powerful tech stack to deliver a seamless and feature-rich experience.
+
+* **Frontend:**
+    * [**Next.js**](https://nextjs.org/): A React framework for building full-stack web applications.
+    * [**React**](https://react.dev/): A JavaScript library for building user interfaces.
+    * [**TypeScript**](https://www.typescriptlang.org/): A typed superset of JavaScript that enhances code quality and maintainability.
+    * [**Tailwind CSS**](https://tailwindcss.com/): A utility-first CSS framework for rapid UI development.
+    * [**Shadcn UI**](https://ui.shadcn.com/): A collection of re-usable UI components built with Radix UI and Tailwind CSS.
+
+* **Backend:**
+    * [**Next.js**](https://nextjs.org/): Utilized for backend logic through API Routes and Server Actions.
+
+* **Real-time Collaboration:**
+    * [**Liveblocks**](https://liveblocks.io/): A set of tools and APIs for adding real-time collaborative experiences to applications.
+
+* **Authentication:**
+    * [**Clerk**](https://clerk.com/): A complete user management and authentication solution.
+
+* **AI Integration:**
+    * [**Google Generative AI**](https://ai.google.dev/): Powered by the **Gemini 1.5 Flash** model for advanced AI capabilities.
+
+* **Error Monitoring:**
+    * [**Sentry**](https://sentry.io/): An open-source error tracking tool that helps developers monitor and fix crashes in real time.
+
+* **Text Editor:**
+    * [**Lexical**](https://lexical.dev/): An extensible JavaScript web text-editor framework.
+
+---
+
 ## 🏗️ System Architecture
 
 LiveDocs is built on a modern, serverless architecture optimized for performance, scalability, and developer experience. The system is logically structured to separate concerns, from the user interface to the real-time backend services.
@@ -140,6 +172,70 @@ GEMINI_API_KEY=your_gemini_api_key
 ```
 
 You can obtain these keys by creating an account on [Clerk](https://clerk.com/), [Liveblocks](https://liveblocks.io/), and generating a Google API Key for Gemini.
+
+-----
+
+### 📈 Known Issues & Future Improvements
+
+#### Known Issues
+Currently, there are no known issues.
+
+#### Future Improvements
+- [ ] Implement a more robust version history for documents.
+- [ ] Add support for more complex formatting options, such as tables and images.
+- [ ] Introduce a "light/dark mode" for the user interface.
+- [ ] Introduce autocompletion feature for the user interface.
+
+-----
+
+## 🤝 Contributing
+
+Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+
+If you'd like to contribute, please follow these steps:
+
+1.  **Fork the Project**
+
+      * Click the 'Fork' button at the top right of the main repository page.
+
+2.  **Clone Your Fork**
+
+      * Clone the repository to your local machine.
+        ```bash
+        git clone https://github.com/your-username/your-repo-name.git
+        cd your-repo-name
+        ```
+
+3.  **Create a New Branch**
+
+      * Create a new branch to work on your feature.
+        ```bash
+        git checkout -b feature/AmazingFeature
+        ```
+
+4.  **Make Your Changes and Commit Them**
+
+      * Make your desired changes to the codebase.
+      * Commit your changes with a clear and descriptive commit message.
+        ```bash
+        git add .
+        git commit -m "feat: Add some AmazingFeature"
+        ```
+
+5.  **Push to Your Branch**
+
+      * Push your committed changes to your forked repository on GitHub.
+        ```bash
+        git push origin feature/AmazingFeature
+        ```
+
+6.  **Open a Pull Request**
+
+      * Navigate to your forked repository on GitHub and click the "Compare & pull request" button.
+      * Provide a clear title and a detailed description of your changes.
+      * Submit the pull request for review.
+
+We appreciate your effort in making this project better\! 🙌
 
 -----
 
