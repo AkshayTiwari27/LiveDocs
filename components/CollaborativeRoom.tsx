@@ -1,6 +1,6 @@
 'use client';
 
-import { ClientSideSuspense, RoomProvider } from '@liveblocks/react/suspense';
+import { ClientSideSuspense, RoomProvider, useEventListener } from '@liveblocks/react/suspense';
 import { Editor } from '@/components/editor/Editor';
 import Header from '@/components/Header';
 import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/nextjs';
@@ -10,7 +10,23 @@ import { Input } from './ui/input';
 import Image from 'next/image';
 import { updateDocument } from '@/lib/actions/room.actions';
 import Loader from './Loader';
+import { useRouter } from 'next/navigation';
 import ShareModal from './ShareModal';
+
+// This component listens for real-time events within the room
+const EventListener = () => {
+  const router = useRouter();
+
+  useEventListener(({ event }) => {
+    if (event?.type === 'ACCESS_UPDATED') {
+      router.refresh(); // Refreshes collaborator list in the header
+    } else if (event?.type === 'DOCUMENT_DELETED') {
+      router.push('/'); // Redirects to dashboard if document is deleted
+    }
+  });
+
+  return null;
+}
 
 const CollaborativeRoom = ({
   roomId,
@@ -25,9 +41,7 @@ const CollaborativeRoom = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const updateTitleHandler = async (
-    e: React.KeyboardEvent<HTMLInputElement>
-  ) => {
+  const updateTitleHandler = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       setLoading(true);
 
@@ -53,8 +67,10 @@ const CollaborativeRoom = ({
         containerRef.current &&
         !containerRef.current.contains(e.target as Node)
       ) {
-        setEditing(false);
-        updateDocument(roomId, documentTitle);
+        if (editing) {
+          setEditing(false);
+          updateDocument(roomId, documentTitle);
+        }
       }
     };
 
@@ -63,7 +79,7 @@ const CollaborativeRoom = ({
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [roomId, documentTitle]);
+  }, [roomId, documentTitle, editing]);
 
   useEffect(() => {
     if (editing && inputRef.current) {
@@ -76,10 +92,7 @@ const CollaborativeRoom = ({
       <ClientSideSuspense fallback={<Loader />}>
         <div className="collaborative-room">
           <Header>
-            <div
-              ref={containerRef}
-              className="flex w-fit items-center justify-center gap-2"
-            >
+            <div ref={containerRef} className="flex w-fit items-center justify-center gap-2">
               {editing && !loading ? (
                 <Input
                   type="text"
@@ -117,13 +130,13 @@ const CollaborativeRoom = ({
             <div className="flex w-full flex-1 justify-end gap-2 sm:gap-3">
               <ActiveCollaborators />
 
-              <ShareModal
+              <ShareModal 
                 roomId={roomId}
                 collaborators={users}
                 creatorId={roomMetadata.creatorId}
                 currentUserType={currentUserType}
               />
-
+              
               <SignedOut>
                 <SignInButton />
               </SignedOut>
@@ -134,6 +147,9 @@ const CollaborativeRoom = ({
           </Header>
           <Editor roomId={roomId} currentUserType={currentUserType} />
         </div>
+
+        {/* This component handles the real-time events */}
+        <EventListener />
       </ClientSideSuspense>
     </RoomProvider>
   );

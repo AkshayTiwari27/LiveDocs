@@ -1,6 +1,6 @@
 'use server';
 
-import { nanoid } from 'nanoid'
+import { nanoid } from 'nanoid';
 import { liveblocks } from '../liveblocks';
 import { revalidatePath } from 'next/cache';
 import { getAccessType, parseStringify } from '../utils';
@@ -76,36 +76,37 @@ export const getDocuments = async (email: string ) => {
   }
 }
 
+
 export const updateDocumentAccess = async ({ roomId, email, userType, updatedBy }: ShareDocumentParams) => {
   try {
     const usersAccesses: RoomAccesses = {
       [email]: getAccessType(userType) as AccessType,
-    }
+    };
 
-    const room = await liveblocks.updateRoom(roomId, { 
+    await liveblocks.updateRoom(roomId, { 
       usersAccesses
-    })
-
-    if(room) {
-      const notificationId = nanoid();
-
-      await liveblocks.triggerInboxNotification({
-        userId: email,
-        kind: '$documentAccess',
-        subjectId: notificationId,
-        activityData: {
-          userType,
-          title: `You have been granted ${userType} access to the document by ${updatedBy.name}`,
-          updatedBy: updatedBy.name,
-          avatar: updatedBy.avatar,
-          email: updatedBy.email
-        },
-        roomId
-      })
-    }
-
-    revalidatePath(`/documents/${roomId}`);
-    return parseStringify(room);
+    });
+    
+    const notificationId = nanoid();
+    await liveblocks.triggerInboxNotification({
+      userId: email,
+      kind: '$documentAccess',
+      subjectId: notificationId,
+      activityData: {
+        userType,
+        title: `You have been granted ${userType} access to the document by ${updatedBy.name}`,
+        updatedBy: updatedBy.name,
+        avatar: updatedBy.avatar,
+        email: updatedBy.email
+      },
+      roomId
+    });
+    
+    await liveblocks.broadcastEvent(roomId, { type: 'ACCESS_UPDATED' });
+    revalidatePath(`/documents/${roomId}`); // Revalidate the specific document
+    revalidatePath('/'); // Revalidate the dashboard for the new user
+    
+    return parseStringify({ success: true });
   } catch (error) {
     console.log(`Error happened while updating a room access: ${error}`);
   }
@@ -113,20 +114,23 @@ export const updateDocumentAccess = async ({ roomId, email, userType, updatedBy 
 
 export const removeCollaborator = async ({ roomId, email }: {roomId: string, email: string}) => {
   try {
-    const room = await liveblocks.getRoom(roomId)
+    const room = await liveblocks.getRoom(roomId);
 
     if(room.metadata.email === email) {
       throw new Error('You cannot remove yourself from the document');
     }
 
-    const updatedRoom = await liveblocks.updateRoom(roomId, {
+    await liveblocks.updateRoom(roomId, {
       usersAccesses: {
         [email]: null
       }
-    })
+    });
 
-    revalidatePath(`/documents/${roomId}`);
-    return parseStringify(updatedRoom);
+    await liveblocks.broadcastEvent(roomId, { type: 'ACCESS_UPDATED' });
+    revalidatePath(`/documents/${roomId}`); // Revalidate the specific document
+    revalidatePath('/'); // Revalidate the dashboard for the removed user
+
+    return parseStringify({ success: true });
   } catch (error) {
     console.log(`Error happened while removing a collaborator: ${error}`);
   }
@@ -134,7 +138,14 @@ export const removeCollaborator = async ({ roomId, email }: {roomId: string, ema
 
 export const deleteDocument = async (roomId: string) => {
   try {
+    // Broadcast the deletion event to clients currently in the room
+    await liveblocks.broadcastEvent(roomId, { type: 'DOCUMENT_DELETED' });
+
+    // Delete the room
     await liveblocks.deleteRoom(roomId);
+    
+    // **THE FIX:** Invalidate the cache for the dashboard page for ALL users.
+    // This ensures the deleted document is removed from everyone's list.
     revalidatePath('/');
     redirect('/');
   } catch (error) {
