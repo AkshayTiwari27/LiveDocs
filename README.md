@@ -3,6 +3,7 @@
         
 -----
 
+
 ## Executive Summary
 
 LiveDocs is a high-performance, real-time collaborative document editor engineered to deliver a seamless, Google Docs-like experience. This full-stack application showcases a modern, reactive architecture using Next.js and Liveblocks, enabling multiple users to create, edit, and collaborate on documents simultaneously. The platform integrates a powerful rich-text editor based on the Lexical framework, robust user authentication with Clerk, proactive error monitoring with Sentry, and **AI-powered content generation using Google Generative AI**, resulting in a scalable, user-friendly, and reliable collaborative environment.
