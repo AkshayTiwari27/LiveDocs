@@ -56,7 +56,10 @@ export const updateDocument = async (roomId: string, title: string) => {
       metadata: {
         title
       }
-    })
+    });
+
+    // Broadcast the title change to all connected clients
+    await liveblocks.broadcastEvent(roomId, { type: 'TITLE_UPDATED', title });
 
     revalidatePath(`/documents/${roomId}`);
 
@@ -75,7 +78,6 @@ export const getDocuments = async (email: string ) => {
     console.log(`Error happened while getting rooms: ${error}`);
   }
 }
-
 
 export const updateDocumentAccess = async ({ roomId, email, userType, updatedBy }: ShareDocumentParams) => {
   try {
@@ -103,8 +105,7 @@ export const updateDocumentAccess = async ({ roomId, email, userType, updatedBy 
     });
     
     await liveblocks.broadcastEvent(roomId, { type: 'ACCESS_UPDATED' });
-    revalidatePath(`/documents/${roomId}`); // Revalidate the specific document
-    revalidatePath('/'); // Revalidate the dashboard for the new user
+    revalidatePath('/'); // Revalidate the dashboard for all users
     
     return parseStringify({ success: true });
   } catch (error) {
@@ -127,8 +128,7 @@ export const removeCollaborator = async ({ roomId, email }: {roomId: string, ema
     });
 
     await liveblocks.broadcastEvent(roomId, { type: 'ACCESS_UPDATED' });
-    revalidatePath(`/documents/${roomId}`); // Revalidate the specific document
-    revalidatePath('/'); // Revalidate the dashboard for the removed user
+    revalidatePath('/'); // Revalidate the dashboard for all users
 
     return parseStringify({ success: true });
   } catch (error) {
@@ -144,8 +144,7 @@ export const deleteDocument = async (roomId: string) => {
     // Delete the room
     await liveblocks.deleteRoom(roomId);
     
-    // **THE FIX:** Invalidate the cache for the dashboard page for ALL users.
-    // This ensures the deleted document is removed from everyone's list.
+    // Invalidate the cache for the dashboard page for ALL users.
     revalidatePath('/');
     redirect('/');
   } catch (error) {

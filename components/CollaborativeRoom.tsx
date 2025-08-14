@@ -13,15 +13,21 @@ import Loader from './Loader';
 import { useRouter } from 'next/navigation';
 import ShareModal from './ShareModal';
 
+type EventListenerProps = {
+  setDocumentTitle: (title: string) => void;
+};
+
 // This component listens for real-time events within the room
-const EventListener = () => {
+const EventListener = ({ setDocumentTitle }: EventListenerProps) => {
   const router = useRouter();
 
   useEventListener(({ event }) => {
     if (event?.type === 'ACCESS_UPDATED') {
-      router.refresh(); // Refreshes collaborator list in the header
+      router.refresh();
     } else if (event?.type === 'DOCUMENT_DELETED') {
-      router.push('/'); // Redirects to dashboard if document is deleted
+      router.push('/');
+    } else if (event?.type === 'TITLE_UPDATED') {
+      setDocumentTitle(event.title);
     }
   });
 
@@ -44,11 +50,9 @@ const CollaborativeRoom = ({
   const updateTitleHandler = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       setLoading(true);
-
       try {
         if (documentTitle !== roomMetadata.title) {
           const updatedDocument = await updateDocument(roomId, documentTitle);
-
           if (updatedDocument) {
             setEditing(false);
           }
@@ -56,7 +60,6 @@ const CollaborativeRoom = ({
       } catch (error) {
         console.error(error);
       }
-
       setLoading(false);
     }
   };
@@ -148,8 +151,7 @@ const CollaborativeRoom = ({
           <Editor roomId={roomId} currentUserType={currentUserType} />
         </div>
 
-        {/* This component handles the real-time events */}
-        <EventListener />
+        <EventListener setDocumentTitle={setDocumentTitle} />
       </ClientSideSuspense>
     </RoomProvider>
   );

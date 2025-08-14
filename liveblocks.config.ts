@@ -27,7 +27,8 @@ declare global {
     // Custom events, for useBroadcastEvent, useEventListener
     RoomEvent: 
       | { type: "ACCESS_UPDATED" }
-      | { type: "DOCUMENT_DELETED" };
+      | { type: "DOCUMENT_DELETED" }
+      | { type: "TITLE_UPDATED"; title: string };
 
     // Custom metadata set on threads, for useThreads, useCreateThread, etc.
     ThreadMetadata: {
