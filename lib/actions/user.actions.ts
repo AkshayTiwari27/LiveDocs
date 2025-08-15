@@ -21,7 +21,10 @@ export const getClerkUsers = async ({ userIds }: { userIds: string[] }) => {
       users.find((user) => user.email === email)
     );
 
-    return parseStringify(sortedUsers);
+    // Filter out any undefined values for users that could not be found
+    const filteredUsers = sortedUsers.filter(user => !!user);
+
+    return parseStringify(filteredUsers);
   } catch (error) {
     console.log(`Error fetching users: ${error}`);
   }

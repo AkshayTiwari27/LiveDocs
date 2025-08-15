@@ -1,55 +1,20 @@
-'use client'; // Required to use hooks like useRouter and useEffect
-
 import AddDocumentBtn from '@/components/AddDocumentBtn';
 import { DeleteModal } from '@/components/DeleteModal';
-import Header from '@/components/Header'
+import Header from '@/components/Header';
 import Notifications from '@/components/Notifications';
 import { getDocuments } from '@/lib/actions/room.actions';
 import { dateConverter } from '@/lib/utils';
-import { SignedIn, UserButton } from '@clerk/nextjs'
-import { useUser } from '@clerk/nextjs'; // Use client-side hook
+import { SignedIn, UserButton } from '@clerk/nextjs';
+import { currentUser } from '@clerk/nextjs/server';
 import Image from 'next/image';
 import Link from 'next/link';
-import { redirect, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { useUnreadInboxNotificationsCount } from '@liveblocks/react/suspense';
+import { redirect } from 'next/navigation';
 
-const Home = () => {
-  const { user: clerkUser } = useUser();
-  const router = useRouter();
-  const [roomDocuments, setRoomDocuments] = useState<any | null>(null);
-  const { count: unreadCount } = useUnreadInboxNotificationsCount();
-  const [prevUnreadCount, setPrevUnreadCount] = useState(unreadCount);
+const Home = async () => {
+  const clerkUser = await currentUser();
+  if (!clerkUser) redirect('/sign-in');
 
-  // **THE FIX:** This effect listens for changes in the notification count.
-  // If a new notification arrives (e.g., you are added to a doc), it refreshes the page data.
-  useEffect(() => {
-    if (unreadCount > prevUnreadCount) {
-      router.refresh();
-    }
-    setPrevUnreadCount(unreadCount);
-  }, [unreadCount, prevUnreadCount, router]);
-  
-  // Fetch documents on the client side
-  useEffect(() => {
-    const fetchDocuments = async () => {
-      if (clerkUser) {
-        const documents = await getDocuments(clerkUser.emailAddresses[0].emailAddress);
-        setRoomDocuments(documents);
-      }
-    };
-
-    fetchDocuments();
-  }, [clerkUser, router]); // Re-fetch when clerkUser is available or after a refresh
-
-  if (!clerkUser) {
-    // You can show a loader here or redirect, but redirect might cause a flash
-    return null; 
-  }
-
-  if (roomDocuments === null) {
-    return <div>Loading documents...</div>; // Or a proper loader component
-  }
+  const roomDocuments = await getDocuments(clerkUser.emailAddresses[0].emailAddress);
 
   return (
     <main className="home-container">
